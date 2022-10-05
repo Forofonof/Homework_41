@@ -24,10 +24,10 @@ internal class Program
             switch (userInput)
             {
                 case AddingBook:
-                    storage.Add();
+                    storage.AddBook();
                     break;
                 case DeletingBook:
-                    storage.Delete();
+                    storage.DeleteBook();
                     break;
                 case ShowAllBooks:
                     storage.Show();
@@ -45,12 +45,11 @@ internal class Program
 
 class Book
 {
-    public string Name;
+    public string Name { get; private set; }
 
-    public string Author;
+    public string Author { get; private set; }
 
-    public int ReleaseDate;
-
+    public int ReleaseDate { get; private set; }
 
     public Book(string name, string author, int releaseDate)
     {
@@ -75,7 +74,7 @@ class Storage
         _books.Add(new Book("О скоротечности жизни", "Анней Сенека", 55));
     }
 
-    public void Add()
+    public void AddBook()
     {
         Console.WriteLine("Введите название книги:");
         string name = Console.ReadLine();
@@ -84,13 +83,12 @@ class Storage
         string author = Console.ReadLine();
 
         Console.WriteLine("Введите год выхода книги:");
-        bool isNumber = int.TryParse(Console.ReadLine(), out int date);
+        ReadNumber(out bool isNumber, out int date);
 
         if (isNumber == true)
         {
             Book book = new Book(name, author, date);
             _books.Add(book);
-
             Console.WriteLine("Книга добавлена в хранилище!");
         }
         else
@@ -100,11 +98,12 @@ class Storage
         }
     }
 
-    public void Delete()
+    public void DeleteBook()
     {
         if (TryGetBook(out Book book))
         {
             _books.Remove(book);
+            Console.WriteLine("Книга удалена!");
         }
     }
 
@@ -113,22 +112,15 @@ class Storage
         Console.WriteLine("Введите индекс книги:");
         bool isNumber = int.TryParse(Console.ReadLine(), out int index);
 
-        if (index > 0 && index - 1 < _books.Count)
+        if (index > 0 && index - 1 < _books.Count && isNumber == true)
         {
             book = _books[index - 1];
-            Console.WriteLine("Книга удалена!");
-            return false;
-        }
-        else if (isNumber == false)
-        {
-            Console.WriteLine("Ошибка!");
-            book = null;
             return false;
         }
         else
         {
-            Console.WriteLine("Книга с таким индексом отсутствует!");
             book = null;
+            Console.WriteLine("Ошибка!");
             return false;
         }
     }
@@ -143,7 +135,7 @@ class Storage
 
         if (userInput == showAllBooks)
         {
-            ShowAll();
+            ShowAllBooks();
         }
         else if (userInput == searchForParameters)
         {
@@ -155,7 +147,7 @@ class Storage
         }
     }
 
-    public void ShowAll()
+    private void ShowAllBooks()
     {
         foreach (var book in _books)
         {
@@ -163,7 +155,7 @@ class Storage
         }
     }
 
-    public void FindForParameters()
+    private void FindForParameters()
     {
         Console.WriteLine($"\n{SearchForName} - Поиск по названию книги.\n{SearchForAuthor} - Поиск по автору.'\n{SearchForDate} - Поиск по дате выхода.\n");
         string userInput = Console.ReadLine();
@@ -185,7 +177,7 @@ class Storage
         }
     }
 
-    public void FindName()
+    private void FindName()
     {
         Console.WriteLine("Укажите название книги:");
         string name = Console.ReadLine();
@@ -203,7 +195,7 @@ class Storage
         }
     }
 
-    public void FindAuthor()
+    private void FindAuthor()
     {
         Console.WriteLine("Укажите Имя и Фамилию автора:");
         string author = Console.ReadLine();
@@ -221,14 +213,14 @@ class Storage
         }
     }
 
-    public void FindDate()
+    private void FindDate()
     {
         Console.WriteLine("Укажите дату выхода книги:");
-        int date = Convert.ToInt32(Console.ReadLine());
+        ReadNumber(out bool isNumber, out int date);
 
         foreach (var book in _books)
         {
-            if (date == book.ReleaseDate)
+            if (date == book.ReleaseDate && isNumber == true)
             {
                 Console.WriteLine($"Книга: {book.Name}. Автор: {book.Author}. Год выпуска: {book.ReleaseDate}");
             }
@@ -237,5 +229,10 @@ class Storage
                 Console.WriteLine("Ошибка!");
             }
         }
+    }
+
+    private void ReadNumber(out bool isNumber, out int date)
+    {
+        isNumber = int.TryParse(Console.ReadLine(), out date);
     }
 }
